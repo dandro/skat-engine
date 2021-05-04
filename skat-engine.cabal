@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6593eccb677bf53afc9a4e6acce8b5f93e20f5ed3db533fba14e4f92ff96c7cf
+-- hash: 000972d36acec875f8a3289cfed817f6c270700ef1dca992bd58b5504128a2bf
 
 name:           skat-engine
 version:        0.1.0.0
@@ -29,6 +29,7 @@ library
   exposed-modules:
       Command
       Config
+      Handlers
       Template
       Transformations
       Utils

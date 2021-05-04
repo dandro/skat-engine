@@ -10,7 +10,7 @@ module Transformations
   ( transformContent
   ) where
 
-import           Command   (GenCommand, sub)
+import           Command   (sub, GenCommand)
 import qualified Data.Map  as M
 import qualified Data.Text as T
 import           Template  (Template, content, extension, mkTemplate, name,
