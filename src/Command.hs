@@ -131,4 +131,4 @@ parserOptions =
   info
     (mkGenCommandParser <**> helper)
     (fullDesc <> progDesc "Let's make your life easier" <>
-     header "Welcome to Progen Cli - Generate whatever you want for free")
+     header "Welcome to SKAT Cli - Generate whatever you want for free")

@@ -5,7 +5,7 @@
 Module: Config
 Description: Application configuration
 
-Contains metadata for the application as well as values needed for Progen to run.
+Contains metadata for the application as well as values needed for SKAT to run.
 -}
 module Config
   ( GenConfig(templatesDir, outputDirs, separator)
@@ -95,7 +95,7 @@ data GenConfig =
 
 -- | Name for the dotfile where the configuration will be read from
 dotfileName :: String
-dotfileName = ".progenrc"
+dotfileName = ".skatrc"
 
 makeDefaultConfig :: Dotfile
 makeDefaultConfig = Dotfile (Last Nothing) (Last Nothing) (Last $ Just Nothing)
@@ -120,7 +120,7 @@ mkDotfile = Dotfile
   Factory to make a GenConfig from a JSONString. It will attempt to construct a Dotfile from its values
   and then combine it with a default config. The result will be the GenConfig that will be returned.
 
-  >>> mkConfig "{ \"root\": \"/dummy/project\", \"templates\": \".progen/templates\", \"filenameSeparator\": \".\", \"output\": { \"component\": \"./components\" }}"
+  >>> mkConfig "{ \"root\": \"/dummy/project\", \"templates\": \".skat/templates\", \"filenameSeparator\": \".\", \"output\": { \"component\": \"./components\" }}"
 -}
 mkConfig :: Dotfile -> String -> Maybe GenConfig
 mkConfig dotfile content =

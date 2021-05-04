@@ -68,7 +68,7 @@ mkTemplate :: String -> String -> String -> String -> String -> Template
 mkTemplate = Template
 
 {-|
-  Iterates through all files in Progen template's source directory.
+  Iterates through all files in SKAT template's source directory.
   For each file in the directory it will match all files that start
   with the `what` passed in the command.
 -}
