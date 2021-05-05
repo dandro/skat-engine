@@ -11,9 +11,11 @@ module Command
     CommandError,
     GenCommand (..),
     InitCommand,
+    mkInitCommand,
   )
 where
 
+import Control.Arrow (left)
 import Data.Bifunctor (first)
 import qualified Data.ByteString.Char8 as BS
 import Data.Functor ((<&>))
@@ -44,7 +46,7 @@ import Options.Applicative
     (<**>),
   )
 import System.Path (RelDir, parse)
-import Utils (joinWith, trim)
+import Utils (joinWith, mkPair, trim)
 
 -- |
 --  GenCommand represents the instructions the program will execute. It contains what we
@@ -104,20 +106,17 @@ toListOfStr str =
   map (map (trim . T.unpack) . T.splitOn (T.pack ":")) $
     T.splitOn (T.pack ",") $ T.pack str
 
-hasEmptyStrings :: [String] -> Bool
-hasEmptyStrings = any null
-
-mkPair :: [String] -> Either CommandError (String, String)
-mkPair pair =
-  if length pair /= 2 || hasEmptyStrings pair
-    then
-      Left $
+parsePair :: [String] -> Either CommandError (String, String)
+parsePair pair =
+  left
+    ( \_ ->
         InvalidSubstitutionError
           ( "ERROR: Invalid substitution value for: "
               ++ joinWith " " pair
               ++ ". e.g -s \"ONE:one, TWO:two\"."
           )
-    else Right (head pair, last pair)
+    )
+    $ mkPair pair
 
 safeInsert ::
   (String, String) -> M.Map String String -> Either CommandError (M.Map String String)
@@ -139,7 +138,7 @@ safeInsert pair m =
 mkSubstitutions :: [[String]] -> Either String (M.Map String String)
 mkSubstitutions listOfPairs =
   first show $
-    traverse mkPair listOfPairs >>= foldr (\v acc -> acc >>= safeInsert v) (Right M.empty)
+    traverse parsePair listOfPairs >>= foldr (\v acc -> acc >>= safeInsert v) (Right M.empty)
 
 mkOptionalOutput :: String -> Either String (Maybe RelDir)
 mkOptionalOutput str = (parse str :: Either String RelDir) <&> Just
@@ -158,6 +157,9 @@ mkGenCommand ::
   Maybe RelDir ->
   GenCommand
 mkGenCommand = GenCommand
+
+mkInitCommand :: InitCommand
+mkInitCommand = InitCommand
 
 mkGenCommandParser :: Parser Command
 mkGenCommandParser =

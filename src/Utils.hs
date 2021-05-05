@@ -9,6 +9,8 @@ module Utils
   , upperCase
   , trim
   , pathStartsWith
+  , mkPair
+  , hasEmptyStrings
   ) where
 
 import qualified Data.ByteString.Char8 as BS
@@ -33,3 +35,13 @@ upperCase = T.unpack . T.toUpper . T.pack
 -- | Check if string starts with another string
 pathStartsWith :: String -> FilePath -> Bool
 pathStartsWith str path = BS.isPrefixOf (BS.pack str) (BS.pack path)
+
+hasEmptyStrings :: [String] -> Bool
+hasEmptyStrings = any null
+
+mkPair :: [String] -> Either String (String, String)
+mkPair pair =
+  if length pair /= 2 || hasEmptyStrings pair
+    then
+      Left "The input is not a pair"
+    else Right (head pair, last pair)

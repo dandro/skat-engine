@@ -29,6 +29,8 @@ dependencies:
 - bytestring >= 0.10.12
 - text >= 1.2.4
 - aeson >= 1.5.6
+- wizards >= 1.0.3
+- haskeline >= 0.8.1
 
 library:
   source-dirs: src

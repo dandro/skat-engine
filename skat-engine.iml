@@ -74,5 +74,11 @@
     <orderEntry type="library" name="pathtype-0.8.1.1" level="project" />
     <orderEntry type="library" name="semigroups-0.19.1" level="project" />
     <orderEntry type="library" name="utility-ht-0.0.16" level="project" />
+    <orderEntry type="library" name="wizards-1.0.3" level="project" />
+    <orderEntry type="library" name="control-monad-free-0.6.2" level="project" />
+    <orderEntry type="library" name="haskeline-0.8.0.1" level="project" />
+    <orderEntry type="library" name="mtl-2.2.2" level="project" />
+    <orderEntry type="library" name="exceptions-0.10.4" level="project" />
+    <orderEntry type="library" name="terminfo-0.4.1.4" level="project" />
   </component>
 </module>
