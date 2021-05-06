@@ -14,6 +14,8 @@ module Command
     GenCommand (..),
     InitCommand,
     mkInitCommand,
+    ExploreCommand,
+    mkExploreCommand,
   )
 where
 
@@ -48,7 +50,7 @@ import Options.Applicative
     (<**>),
   )
 import System.Path (RelDir, parse)
-import Utils (joinWith, mkPair, trim, toListOfStr, distinctMapFromList)
+import Utils (distinctMapFromList, joinWith, mkPair, toListOfStr, trim)
 
 -- |
 --  GenCommand represents the instructions the program will execute. It contains what we
@@ -68,6 +70,7 @@ data Command
         output' :: Maybe RelDir
       }
   | Init
+  | Explore
   deriving (Show)
 
 data GenCommand = GenCommand
@@ -84,6 +87,8 @@ data GenCommand = GenCommand
   }
 
 data InitCommand = InitCommand deriving (Show)
+
+data ExploreCommand = ExploreCommand deriving (Show)
 
 -- |
 --  Encompasses all possible errors in the Command module
@@ -113,7 +118,7 @@ mkDuplicateOutputMapError pair m =
         ++ snd pair
         ++ "'."
     )
-    
+
 mkSubstitutions :: String -> Either String (M.Map String String)
 mkSubstitutions listOfPairs =
   first show $ (distinctMapFromList mkInvalidOutputMapError mkDuplicateOutputMapError . toListOfStr) listOfPairs
@@ -138,6 +143,9 @@ mkGenCommand = GenCommand
 
 mkInitCommand :: InitCommand
 mkInitCommand = InitCommand
+
+mkExploreCommand :: ExploreCommand
+mkExploreCommand = ExploreCommand
 
 mkGenCommandParser :: Parser Command
 mkGenCommandParser =
@@ -170,8 +178,14 @@ mkInitCommandParser = pure Init
 initCommand :: Mod CommandFields Command
 initCommand = command "init" (info mkInitCommandParser (progDesc "Create SKAT config for your project"))
 
+mkExploreCommandParser :: Parser Command
+mkExploreCommandParser = pure Explore
+
+exploreCommand :: Mod CommandFields Command
+exploreCommand = command "explore" (info mkExploreCommandParser (progDesc "Explore current templates with an easy search"))
+
 mkCommandParser :: Parser Command
-mkCommandParser = hsubparser (genCommand <> initCommand)
+mkCommandParser = hsubparser (genCommand <> initCommand <> exploreCommand)
 
 versionOption :: Parser (a -> a)
 versionOption = infoOption "0.0" (long "version" <> short 'v' <> help "Show tool version")

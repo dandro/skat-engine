@@ -1,10 +1,9 @@
 module Main where
 
-import Command (Command (Gen, Init), parserOptions, mkGenCommand, mkInitCommand)
-import Handlers (handleGenCommand, handleInitCommand)
+import Command (Command (Explore, Gen, Init), mkExploreCommand, mkGenCommand, mkInitCommand, parserOptions)
+import Handlers (handleExploreCommand, handleGenCommand, handleInitCommand)
 import Options.Applicative.Extra (execParser)
 import System.Directory (getCurrentDirectory)
-
 
 main :: IO ()
 main = do
@@ -13,3 +12,4 @@ main = do
   case command of
     Init -> handleInitCommand pwd mkInitCommand
     Gen what name asModule sub output -> handleGenCommand pwd (mkGenCommand what name asModule sub output)
+    Explore -> handleExploreCommand pwd mkExploreCommand

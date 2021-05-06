@@ -81,5 +81,13 @@
     <orderEntry type="library" name="distributive-0.6.2.1" level="project" />
     <orderEntry type="library" name="indexed-traversable-0.1.1" level="project" />
     <orderEntry type="library" name="aeson-pretty-0.8.8" level="project" />
+    <orderEntry type="library" name="data-default-0.7.1.1" level="project" />
+    <orderEntry type="library" name="structured-cli-2.6.0.0" level="project" />
+    <orderEntry type="library" name="data-default-class-0.1.2.0" level="project" />
+    <orderEntry type="library" name="data-default-instances-containers-0.0.1" level="project" />
+    <orderEntry type="library" name="data-default-instances-dlist-0.0.1" level="project" />
+    <orderEntry type="library" name="data-default-instances-old-locale-0.0.1" level="project" />
+    <orderEntry type="library" name="split-0.2.3.4" level="project" />
+    <orderEntry type="library" name="old-locale-1.0.0.7" level="project" />
   </component>
 </module>

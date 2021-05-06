@@ -78,8 +78,8 @@ mkTemplate = Template
 --  Iterates through all files in SKAT template's source directory.
 --  For each file in the directory it will match all files that start
 --  with the `what` passed in the command.
-getTemplateFiles :: AbsDir -> GenConfig -> Comm.GenCommand -> IO (Either TemplateError [Template])
-getTemplateFiles root config command =
+getTemplateFiles :: AbsDir -> GenConfig -> String -> String -> IO (Either TemplateError [Template])
+getTemplateFiles root config cmdName cmdWhat =
   doesDirectoryExist (toString templatesPath)
     >>= ( \case
             True ->
@@ -91,11 +91,11 @@ getTemplateFiles root config command =
                   . filter pred
             False -> pure []
         )
-    <&> (<$>) (toTemplate (separator config) (Comm.name command))
+    <&> (<$>) (toTemplate (separator config) cmdName)
     <&> ( \case
             [] -> Left $ NoMatchFound "Did not find any matching templates."
             templates -> Right templates
         )
   where
     templatesPath = root </> templatesDir config
-    pred = pathStartsWith (Comm.what command)
+    pred = pathStartsWith cmdWhat
