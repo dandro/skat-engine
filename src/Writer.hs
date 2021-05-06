@@ -13,7 +13,7 @@ module Writer
   )
 where
 
-import Config (GenConfig, outputDirs, separator)
+import Config (GenConfig, dotfileName, outputDirs, separator)
 import qualified Data.ByteString.Lazy.Char8 as BS
 import Data.Functor (($>))
 import Data.List (find)
@@ -122,6 +122,13 @@ write root asModule config template =
     outDir = combineWhenModule asModule template out
     filename = getNameWithExt asModule (separator config) template
 
-writeDotfile :: AbsDir -> BS.ByteString -> IO (Either WriterError String)
+-- | Write dotfile in current directory
+writeDotfile ::
+  -- | Current working directory
+  AbsDir ->
+  -- | Dotfile contents as JSON string
+  BS.ByteString ->
+  IO (Either WriterError String)
 writeDotfile dir json =
-  (getFileHandler dir (relFile ".skatrc") >>= persistWithContent (BS.unpack json)) $> Right "Success"
+  (getFileHandler dir (relFile ".skatrc") >>= persistWithContent (BS.unpack json))
+    $> Right ("Successfully created " <> dotfileName)
