@@ -1,6 +1,6 @@
 name:                skat-engine
 version:             0.1.0.0
-github:              "dandro/skat-engine"
+github:              "https://github.com/dandro/skat-engine"
 license:             BSD3
 author:              "dnlmrtnz"
 maintainer:          "dandro.dsign@gmail.com"
