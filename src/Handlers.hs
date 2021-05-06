@@ -34,6 +34,7 @@ import System.Path (AbsDir, absDir)
 import Template (Template, getTemplateFiles)
 import Transformations (transformContent)
 import Writer (WriterError, write, writeDotfile)
+import System.Exit (die)
 
 getConfig :: FilePath -> Dotfile -> IO (Either ConfigError GenConfig)
 getConfig pwd dotfile =
@@ -47,15 +48,15 @@ handleGenCommand :: FilePath -> GenCommand -> IO ()
 handleGenCommand pwd command =
   getConfig pwd (mkDotfile (Last Nothing) (Last $(\o -> fromList [(what command, o)]) <$> output command) (Last Nothing))
     >>= ( \case
-            Left err -> print err
+            Left err -> (die . show) err
             Right conf ->
               getTemplateFiles (absDir pwd) conf command
                 >>= ( \case
-                        Left err -> print err
+                        Left err -> (die . show) err
                         Right templates ->
                           execWrite (absDir pwd) command conf templates
                             >>= ( ( \case
-                                      Left err -> print err
+                                      Left err -> (die . show) err
                                       Right msg -> putStrLn $ foldr (<>) "" $ intersperse "\n" msg
                                   )
                                     . sequence
@@ -68,11 +69,11 @@ handleInitCommand pwd _ = do
   dotfile <- runInputT defaultSettings (run (haskeline $ mkInitDotfile <$> templatePathWizard <*> outputWizard <*> separatorWizard))
   let json = dotfile <&> initDotFileToSerializable <&> encodePretty
   case json of
-    Nothing -> putStrLn "ERROR: Could not build dotfile from data entered"
+    Nothing -> die "Could not build dotfile from data entered"
     Just json' ->
       writeDotfile (absDir pwd) json'
         >>= ( \case
-                Left err -> print err
+                Left err -> (die . show) err
                 Right msg -> putStrLn msg
             )
   where
@@ -80,5 +81,5 @@ handleInitCommand pwd _ = do
     outputWizard =
       retryMsg "Invalid output directory mapping" $
         parser parseOutputMap $
-          nonEmpty (line "[optional] Add output mapping separated by a ':' (e.g. component:./components) : ") `defaultTo` "component:./components"
+          nonEmpty (line "[optional] Add output mapping separated by a ':' (e.g. component:./components, action:./store/actions) : ") `defaultTo` "component:./components"
     separatorWizard = parser parseSeparator $ nonEmpty (line "[optional] Spacify a file separator: ") `defaultTo` "."

@@ -93,7 +93,7 @@ getTemplateFiles root config command =
         )
     <&> (<$>) (toTemplate (separator config) (Comm.name command))
     <&> ( \case
-            [] -> Left $ NoMatchFound "ERROR: Did not find any matching templates."
+            [] -> Left $ NoMatchFound "Did not find any matching templates."
             templates -> Right templates
         )
   where

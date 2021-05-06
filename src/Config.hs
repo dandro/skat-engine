@@ -2,7 +2,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TupleSections #-}
 
 -- |
 -- Module: Config
@@ -27,20 +26,18 @@ module Config
   )
 where
 
+import Control.Arrow (left)
 import Data.Aeson (decode)
 import Data.Aeson.Types
   ( FromJSON,
     Parser,
     ToJSON,
-    object,
     parseJSON,
     withObject,
     (.:),
     (.:?),
-    (.=),
   )
 import qualified Data.ByteString.Lazy.Char8 as LazyC
-import Data.Functor ((<&>))
 import qualified Data.Map.Strict as M
 import Data.Maybe (fromMaybe)
 import Data.Monoid (Last (Last), getLast)
@@ -53,8 +50,7 @@ import System.Path
     relDir,
     toString,
   )
-import System.Path.Generic ((</>))
-import Utils (mkPair, upperCase)
+import Utils (distinctMapFromList, joinWith, mkPair, toListOfStr)
 
 -- |
 --  It represents the data coming from the configuration file. More data can be needed but may not be configurable.
@@ -71,16 +67,22 @@ data Dotfile = Dotfile
 
 -- |
 --  Encompasses all possible errors in the Config module
-newtype ConfigError
+data ConfigError
   = -- | Cannot create a valid config from all inputs
     CouldNotMakeConfig String
+  | -- | Output map has invalid values
+    InvalidOutputMap String
+  | -- | Output map has duplicated values
+    DuplicateOutputMapError String
+  | -- | Output value is not a valid RelPath
+    InvalidOutputPath String
   deriving (Show)
 
 -- |
 --  Transform maybe config to an Either of the correct Domain error or the valid Config
 handleConfigResult :: Maybe GenConfig -> Either ConfigError GenConfig
 handleConfigResult (Just config) = Right config
-handleConfigResult Nothing = Left $ CouldNotMakeConfig "ERROR: Coud not make a valid configuration."
+handleConfigResult Nothing = Left $ CouldNotMakeConfig "Coud not make a valid configuration."
 
 mkDirPath :: (String -> Dir os) -> T.Text -> Last (Dir os)
 mkDirPath toPath = Last . Just . toPath . T.unpack
@@ -185,15 +187,37 @@ parseTemplatesPath input = case parse input of
   Left _ -> Nothing
   Right path -> Just path
 
+mkInvalidOutputMapError :: [String] -> ConfigError
+mkInvalidOutputMapError pair =
+  InvalidOutputMap
+    ( "Invalid output map value for: "
+        ++ joinWith " " pair
+        ++ ". e.g -s \"ONE:one, TWO:two\"."
+    )
+
+mkDuplicateOutputMapError :: (String, String) -> M.Map String String -> ConfigError
+mkDuplicateOutputMapError pair m =
+  DuplicateOutputMapError
+    ( "Duplicate output mapping value: "
+        ++ fst pair
+        ++ " has '"
+        ++ (m M.! fst pair)
+        ++ "' and '"
+        ++ snd pair
+        ++ "'."
+    )
+
 parseOutputMap :: String -> Maybe (M.Map String RelDir)
 parseOutputMap input =
   ( \case
-      Left _ -> Nothing
-      Right kvPair -> Just $ M.fromList [kvPair]
+      Left _ -> Nothing -- TODO: Might want to give the actual error output here instead of swallowing the message
+      Right v -> Just v
   )
-    (mkPair pair >>= (\(k, v) -> parse v <&> (k,)))
+    result
   where
-    pair = LazyC.unpack <$> LazyC.split ':' (LazyC.pack input)
+    result =
+      (distinctMapFromList mkInvalidOutputMapError mkDuplicateOutputMapError . toListOfStr) input
+        >>= (left InvalidOutputPath . sequence . M.map parse)
 
 parseSeparator :: String -> Maybe (Maybe Char)
 parseSeparator [c] = Just . Just $ c

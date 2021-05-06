@@ -48,7 +48,7 @@ import Options.Applicative
     (<**>),
   )
 import System.Path (RelDir, parse)
-import Utils (joinWith, mkPair, trim)
+import Utils (joinWith, mkPair, trim, toListOfStr, distinctMapFromList)
 
 -- |
 --  GenCommand represents the instructions the program will execute. It contains what we
@@ -94,53 +94,29 @@ data CommandError
     DuplicateSubstitutionError String
   deriving (Show)
 
--- |
---  This function is meant to split the str by ','
---  first and then split each result by ':' and
---  then trim each string in the inner List. The
---  IDE helped format it this way but it's a tad hard
---  to grok.
---  e.g.
---       if str is "$A$:a, $B$:b"
---       then the result is [["A", "a"], ["B", "b"]]
-toListOfStr :: String -> [[String]]
-toListOfStr str =
-  map (map (trim . T.unpack) . T.splitOn (T.pack ":")) $
-    T.splitOn (T.pack ",") $ T.pack str
-
-parsePair :: [String] -> Either CommandError (String, String)
-parsePair pair =
-  left
-    ( \_ ->
-        InvalidSubstitutionError
-          ( "ERROR: Invalid substitution value for: "
-              ++ joinWith " " pair
-              ++ ". e.g -s \"ONE:one, TWO:two\"."
-          )
+mkInvalidOutputMapError :: [String] -> CommandError
+mkInvalidOutputMapError pair =
+  InvalidSubstitutionError
+    ( "Invalid output map value for: "
+        ++ joinWith " " pair
+        ++ ". e.g -s \"ONE:one, TWO:two\"."
     )
-    $ mkPair pair
 
-safeInsert ::
-  (String, String) -> M.Map String String -> Either CommandError (M.Map String String)
-safeInsert pair m =
-  if M.member (fst pair) m
-    then
-      Left $
-        DuplicateSubstitutionError
-          ( "Duplicate substitution value: "
-              ++ fst pair
-              ++ " has '"
-              ++ (m M.! fst pair)
-              ++ "' and '"
-              ++ snd pair
-              ++ "'."
-          )
-    else Right $ uncurry M.insert pair m
-
-mkSubstitutions :: [[String]] -> Either String (M.Map String String)
+mkDuplicateOutputMapError :: (String, String) -> M.Map String String -> CommandError
+mkDuplicateOutputMapError pair m =
+  DuplicateSubstitutionError
+    ( "Duplicate output mapping value: "
+        ++ fst pair
+        ++ " has '"
+        ++ (m M.! fst pair)
+        ++ "' and '"
+        ++ snd pair
+        ++ "'."
+    )
+    
+mkSubstitutions :: String -> Either String (M.Map String String)
 mkSubstitutions listOfPairs =
-  first show $
-    traverse parsePair listOfPairs >>= foldr (\v acc -> acc >>= safeInsert v) (Right M.empty)
+  first show $ (distinctMapFromList mkInvalidOutputMapError mkDuplicateOutputMapError . toListOfStr) listOfPairs
 
 mkOptionalOutput :: String -> Either String (Maybe RelDir)
 mkOptionalOutput str = (parse str :: Either String RelDir) <&> Just
@@ -169,7 +145,7 @@ mkGenCommandParser =
     <$> strOption (long "what" <> short 'w' <> help "What do you want to generate")
     <*> strOption (long "name" <> short 'n' <> help "Name of file you're generating")
     <*> option
-      (eitherReader $ mkSubstitutions . toListOfStr)
+      (eitherReader mkSubstitutions)
       ( long "substitution" <> short 's' <> value M.empty
           <> help
             "Values to substitue in the template. The format is '-s \"$KEY_ONE$:value-one, $KEY_TWO$:value-two.\"'"
