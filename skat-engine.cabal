@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: fb288cadaeecc9d01757ffcb756b960bbc4cfafa5ed28f88979775d3ed8ade6a
+-- hash: fa29ee5b463519fd36f3419299b9698ef172796eb448e9ce32460f2e3969dfc5
 
 name:           skat-engine
 version:        0.1.0.0
@@ -40,6 +40,7 @@ library
       src
   build-depends:
       aeson >=1.5.6
+    , aeson-pretty >=0.8.8
     , base >=4.7 && <5
     , bytestring >=0.10.12
     , containers >=0.4.0
@@ -61,6 +62,7 @@ executable skat-engine-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson >=1.5.6
+    , aeson-pretty >=0.8.8
     , base >=4.7 && <5
     , bytestring >=0.10.12
     , containers >=0.4.0
@@ -87,6 +89,7 @@ test-suite skat-engine-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson >=1.5.6
+    , aeson-pretty >=0.8.8
     , base >=4.7 && <5
     , bytestring >=0.10.12
     , containers >=0.4.0

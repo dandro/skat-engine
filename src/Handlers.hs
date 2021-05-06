@@ -21,7 +21,7 @@ import Config
     parseSeparator,
     parseTemplatesPath,
   )
-import Data.Aeson (encode)
+import Data.Aeson.Encode.Pretty (encodePretty)
 import Data.Functor ((<&>))
 import Data.List (intersperse)
 import Data.Map.Strict (fromList)
@@ -66,7 +66,7 @@ handleGenCommand pwd command =
 handleInitCommand :: FilePath -> InitCommand -> IO ()
 handleInitCommand pwd _ = do
   dotfile <- runInputT defaultSettings (run (haskeline $ mkInitDotfile <$> templatePathWizard <*> outputWizard <*> separatorWizard))
-  let json = dotfile <&> initDotFileToSerializable <&> encode
+  let json = dotfile <&> initDotFileToSerializable <&> encodePretty
   case json of
     Nothing -> putStrLn "ERROR: Could not build dotfile from data entered"
     Just json' ->
