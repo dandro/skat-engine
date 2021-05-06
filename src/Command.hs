@@ -1,4 +1,6 @@
--- |
+{-# LANGUAGE OverloadedStrings #-}
+
+-- -- |
 -- Module: Command
 -- Description: Parse cli command
 --

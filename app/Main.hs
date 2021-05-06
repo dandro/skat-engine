@@ -5,6 +5,7 @@ import Handlers (handleGenCommand, handleInitCommand)
 import Options.Applicative.Extra (execParser)
 import System.Directory (getCurrentDirectory)
 
+
 main :: IO ()
 main = do
   pwd <- getCurrentDirectory -- TODO: Should handle possible errors (This can throw some errors)
