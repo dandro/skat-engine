@@ -89,6 +89,11 @@ handleInitCommand pwd _ = do
           nonEmpty (line "[optional] Add output mapping separated by a ':' (e.g. component:./components, action:./store/actions) : ") `defaultTo` "component:./components"
     separatorWizard = parser parseSeparator $ nonEmpty (line "[optional] Spacify a file separator: ") `defaultTo` "."
 
+{-
+  Documentation on Structured CLI
+  https://gitlab.com/codemonkeylabs/structured-cli/-/blob/master/example/Main.hs
+-}
+
 explorer :: AbsDir -> GenConfig -> Commands ()
 explorer pwd config = do
   listMatchedTemplates pwd config
